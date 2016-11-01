@@ -1,0 +1,90 @@
+#! /bin/bash
+
+# HBU - 31/10/16 23:55
+
+#############################
+######## definitions ########
+#############################
+
+# a simple bash script to OCR a scanned PDF file into a text (.txt) file
+# works with English and some other trained languages
+# Turkish recognition not yet investigated / tried
+# Uses imagemagick's convert tool to turn pdf pages into separate images
+# Image files could be renamed as per desired pattern if to be kept
+# Then runs png's thru' Tesseract OCR engine on commandline:
+# Open-source Tesseract OCR Engine https://github.com/tesseract-ocr
+
+#############################
+########### Usage ###########
+#############################
+
+# run script in commandline with file name to be processed
+# as an argument, including .pdf extension
+# e.g. "convert4ocr File-to-be_OCR'ed.pdf"
+# bash script is a shell-executable yet; will be added to $PATH later
+# All syntax is for Linux; porting to Windows by company SW team if wanted
+
+#############################
+########## Script ###########
+#############################
+
+echo "PDF dosyanızda kaç sayfa var? "
+
+# input no of pages in source pdf - to be changed later
+read pageCount
+
+echo "Çalıştırdığınız kabuk betiğinin adı: $0" && sleep 0.5
+echo "Bu betiği $# adet parametre ile çalıştırıyorsunuz." && sleep 0.5
+echo "Dönüştürdüğünüz dosyanın adı: $1" && sleep 0.5
+echo "Betik, dosyadaki $pageCount adet sayfanın herbirini ..." && sleep 0.5
+echo "... ayrı bir görüntü dosyası (.png) olarak ..." && sleep 0.5
+echo "... bulunduğunuz dizine kaydedecek." && sleep 0.5
+echo "$pageCount adet sayfa görüntü dosyasına dönüştürülüyor..."
+
+
+#############################
+#### loop to make images ####
+#############################
+
+for i in {1..$pageCount}; do
+convert -density 500 $1 -quality 100 image4ocr.png; done
+
+# $1= positional parameter; 1st
+# density 300 dpi; "-units" is dots per cm
+# quality: JPEG/MIFF/PNG compression level; 100 w' no compression
+# check: -resize / -resample etc...
+
+echo "İşlem tamamlandı!"
+echo "Şimdi OCR işlemi uygulanacak..."
+
+tesseract image4ocr-0.png Metin -l eng
+
+# OCR'ing other png's - later
+# Replace "Metin" with your name pattern - minus the .txt extension
+
+exit 0
+
+#############################
+
+# convert opsiyonları (özellikle -write) bkz.: 
+# http://www.imagemagick.org/script/convert.php
+
+# convert starts from "filename-0" while naming converted image
+# http://www.joyofdata.de/blog/a-guide-on-ocr-with-tesseract-3-03/ .
+# To make it start from 1? See wishlist.
+# pageCount=$(( pageCount - 1 )) 
+
+# Other conversion options:
+# conversion of page 1 of PDF to PNG
+# convert -density 500 test.pdf[0] -quality 100 test.png
+
+###### Wishlist #######
+# sonra yapılacaklar: 
+# OCR dizini olup olmadığı kontrol
+# yoksa OCR dizini oluştur
+# dönüştürülen dosyaları OCR dizinine koy
+# OCR işlemi sonrası imaj dosyalarını saklamak istiyor musun diye sor
+# evetse ziple ve sakla, png'leri sil; hayırsa png'leri sil
+# OCR metninin alınacağı metin dosyasını adlandırmak için basename kullanıp ad iste - son ek txt olsun?
+# Sayfa numarası isterken, pdf'in tamamını mı, sayfaları mı dönüştür? 
+# png dosya adlandırmasında 0'dan başlama, düzelt?
