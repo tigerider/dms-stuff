@@ -1,2 +1,2 @@
 # dms-stuff
-doument management system related stuff, tests et al
+document management system related stuff, tests et al
